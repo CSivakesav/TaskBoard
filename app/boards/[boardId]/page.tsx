@@ -14,7 +14,7 @@ import {
   ChevronDown, AlertCircle, CheckCircle2, MoreHorizontal, GripVertical,
   Activity, Send
 } from 'lucide-react';
-import type { Board, List, Card, DailyUpdate, Activity as ActivityType } from '@/lib/types';
+import type { Board, List, Card, DailyUpdate, Activity as ActivityType, Priority } from '@/lib/types';
 
 export default function KanbanBoardPage() {
   const params = useParams();
@@ -43,6 +43,7 @@ export default function KanbanBoardPage() {
   const [addingCardToList, setAddingCardToList] = useState<string | null>(null);
   const [newCardTitle, setNewCardTitle] = useState('');
   const [newCardAssignee, setNewCardAssignee] = useState('');
+  const [newCardPriority, setNewCardPriority] = useState<Priority>('MEDIUM');
 
   // Card detail modal
   const [selectedCard, setSelectedCard] = useState<Card | null>(null);
@@ -221,10 +222,12 @@ export default function KanbanBoardPage() {
           listId,
           title: newCardTitle.trim(),
           assignedTo: newCardAssignee.trim(),
+          priority: newCardPriority,
         }),
       });
       setNewCardTitle('');
       setNewCardAssignee('');
+      setNewCardPriority('MEDIUM');
       setAddingCardToList(null);
       fetchBoard();
     } catch (err) {
@@ -324,7 +327,16 @@ export default function KanbanBoardPage() {
     }
   }
 
-  // ─── Filtering ──────────────────────────────────
+  // ─── Priority Hierarchy & Sorting ──────────────
+
+  const PRIORITY_RANK: Record<string, number> = {
+    URGENT: 4,
+    HIGH: 3,
+    MEDIUM: 2,
+    LOW: 1,
+  };
+
+  // ─── Filtering & Auto-Sorting by Priority ───────
 
   function getFilteredCards(listId: string): Card[] {
     let filtered = cards.filter((c) => c.ListID === listId);
@@ -342,13 +354,25 @@ export default function KanbanBoardPage() {
       filtered = filtered.filter((c) => c.AssignedTo === filterAssignee);
     }
 
-    return filtered.sort((a, b) => a.Position - b.Position);
+    // Automatically sort from highest priority at top to lowest at bottom
+    return filtered.sort((a, b) => {
+      const pA = PRIORITY_RANK[(a.Priority || 'MEDIUM').toUpperCase()] || 2;
+      const pB = PRIORITY_RANK[(b.Priority || 'MEDIUM').toUpperCase()] || 2;
+      if (pB !== pA) {
+        return pB - pA; // URGENT (4) -> HIGH (3) -> MEDIUM (2) -> LOW (1)
+      }
+      return a.Position - b.Position;
+    });
   }
 
   // ─── Priority / Status helpers ──────────────────
 
   function getPriorityClass(p: string) {
-    return `priority-badge-${p.toLowerCase()}`;
+    const norm = (p || 'MEDIUM').toUpperCase();
+    if (norm === 'URGENT') return styles.priorityUrgent;
+    if (norm === 'HIGH') return styles.priorityHigh;
+    if (norm === 'LOW') return styles.priorityLow;
+    return styles.priorityMedium;
   }
 
   function getStatusClass(s: string) {
@@ -484,11 +508,9 @@ export default function KanbanBoardPage() {
                               >
                                 <div className={`${styles.cardInner} ${snapshot.isDragging ? styles.cardInnerDragging : ''}`}>
                                   <div className={styles.cardHeader}>
-                                    {card.Priority && card.Priority !== 'MEDIUM' ? (
-                                      <span className={`${styles.cardBadge} ${getPriorityClass(card.Priority)}`}>
-                                        {card.Priority}
-                                      </span>
-                                    ) : <div />}
+                                    <span className={`${styles.cardBadge} ${getPriorityClass(card.Priority)}`}>
+                                      {card.Priority || 'MEDIUM'}
+                                    </span>
                                     <div className={styles.cardGrip} title="Drag card">
                                       <GripVertical size={14} />
                                     </div>
@@ -559,6 +581,19 @@ export default function KanbanBoardPage() {
                             className={styles.addCardAssigneeInput}
                           />
                         </div>
+                        <div className={styles.addCardPriorityRow}>
+                          <Flag size={13} className={styles.addCardPriorityIcon} />
+                          <select
+                            value={newCardPriority}
+                            onChange={(e) => setNewCardPriority(e.target.value as Priority)}
+                            className={styles.addCardPrioritySelect}
+                          >
+                            <option value="URGENT">🔴 Urgent</option>
+                            <option value="HIGH">🟠 High</option>
+                            <option value="MEDIUM">🔵 Medium</option>
+                            <option value="LOW">🟢 Low</option>
+                          </select>
+                        </div>
                         <div className={styles.addCardActions}>
                           <button className={styles.addCardSubmit} onClick={() => handleAddCard(list.ListID)}>
                             Add Card
@@ -569,6 +604,7 @@ export default function KanbanBoardPage() {
                               setAddingCardToList(null);
                               setNewCardTitle('');
                               setNewCardAssignee('');
+                              setNewCardPriority('MEDIUM');
                             }}
                           >
                             <X size={16} />
@@ -582,6 +618,7 @@ export default function KanbanBoardPage() {
                           setAddingCardToList(list.ListID);
                           setNewCardTitle('');
                           setNewCardAssignee('');
+                          setNewCardPriority('MEDIUM');
                         }}
                       >
                         <Plus size={16} /> Add a card
