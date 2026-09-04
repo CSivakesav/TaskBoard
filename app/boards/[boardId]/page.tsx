@@ -42,6 +42,7 @@ export default function KanbanBoardPage() {
   // Card creation
   const [addingCardToList, setAddingCardToList] = useState<string | null>(null);
   const [newCardTitle, setNewCardTitle] = useState('');
+  const [newCardAssignee, setNewCardAssignee] = useState('');
 
   // Card detail modal
   const [selectedCard, setSelectedCard] = useState<Card | null>(null);
@@ -215,9 +216,15 @@ export default function KanbanBoardPage() {
       await fetch('/api/cards', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ boardId, listId, title: newCardTitle }),
+        body: JSON.stringify({
+          boardId,
+          listId,
+          title: newCardTitle.trim(),
+          assignedTo: newCardAssignee.trim(),
+        }),
       });
       setNewCardTitle('');
+      setNewCardAssignee('');
       setAddingCardToList(null);
       fetchBoard();
     } catch (err) {
@@ -477,11 +484,11 @@ export default function KanbanBoardPage() {
                               >
                                 <div className={`${styles.cardInner} ${snapshot.isDragging ? styles.cardInnerDragging : ''}`}>
                                   <div className={styles.cardHeader}>
-                                    {card.Priority && (
+                                    {card.Priority && card.Priority !== 'MEDIUM' ? (
                                       <span className={`${styles.cardBadge} ${getPriorityClass(card.Priority)}`}>
                                         {card.Priority}
                                       </span>
-                                    )}
+                                    ) : <div />}
                                     <div className={styles.cardGrip} title="Drag card">
                                       <GripVertical size={14} />
                                     </div>
@@ -505,9 +512,12 @@ export default function KanbanBoardPage() {
                                       </span>
                                     )}
                                     {card.AssignedTo && (
-                                      <span className={styles.cardAssignee} title={`Assigned to ${card.AssignedTo}`}>
-                                        {card.AssignedTo.charAt(0).toUpperCase()}
-                                      </span>
+                                      <div className={styles.cardAssigneePill} title={`Assigned to ${card.AssignedTo}`}>
+                                        <span className={styles.cardAssigneeAvatar}>
+                                          {card.AssignedTo.charAt(0).toUpperCase()}
+                                        </span>
+                                        <span className={styles.cardAssigneeName}>{card.AssignedTo}</span>
+                                      </div>
                                     )}
                                   </div>
                                 </div>
@@ -532,23 +542,48 @@ export default function KanbanBoardPage() {
                       <div className={styles.addCardForm}>
                         <input
                           type="text"
-                          placeholder="Enter card title..."
+                          placeholder="Card title..."
                           value={newCardTitle}
                           onChange={(e) => setNewCardTitle(e.target.value)}
                           onKeyDown={(e) => { if (e.key === 'Enter') handleAddCard(list.ListID); }}
                           autoFocus
                         />
+                        <div className={styles.addCardAssigneeRow}>
+                          <User size={13} className={styles.addCardAssigneeIcon} />
+                          <input
+                            type="text"
+                            placeholder="Assign to (name)..."
+                            value={newCardAssignee}
+                            onChange={(e) => setNewCardAssignee(e.target.value)}
+                            onKeyDown={(e) => { if (e.key === 'Enter') handleAddCard(list.ListID); }}
+                            className={styles.addCardAssigneeInput}
+                          />
+                        </div>
                         <div className={styles.addCardActions}>
                           <button className={styles.addCardSubmit} onClick={() => handleAddCard(list.ListID)}>
                             Add Card
                           </button>
-                          <button className={styles.addCardCancel} onClick={() => { setAddingCardToList(null); setNewCardTitle(''); }}>
+                          <button
+                            className={styles.addCardCancel}
+                            onClick={() => {
+                              setAddingCardToList(null);
+                              setNewCardTitle('');
+                              setNewCardAssignee('');
+                            }}
+                          >
                             <X size={16} />
                           </button>
                         </div>
                       </div>
                     ) : (
-                      <button className={styles.addCardBtn} onClick={() => setAddingCardToList(list.ListID)}>
+                      <button
+                        className={styles.addCardBtn}
+                        onClick={() => {
+                          setAddingCardToList(list.ListID);
+                          setNewCardTitle('');
+                          setNewCardAssignee('');
+                        }}
+                      >
                         <Plus size={16} /> Add a card
                       </button>
                     )}
@@ -657,12 +692,12 @@ export default function KanbanBoardPage() {
                       <div className={styles.editRow}>
                         <div className={styles.editGroup}>
                           <label>Assigned To</label>
-                          <select value={editForm.assignedTo} onChange={(e) => setEditForm({ ...editForm, assignedTo: e.target.value })}>
-                            <option value="">Unassigned</option>
-                            {users.map((u) => (
-                              <option key={u.UserID} value={u.Email}>{u.Name}</option>
-                            ))}
-                          </select>
+                          <input
+                            type="text"
+                            placeholder="Person's name..."
+                            value={editForm.assignedTo}
+                            onChange={(e) => setEditForm({ ...editForm, assignedTo: e.target.value })}
+                          />
                         </div>
                         <div className={styles.editGroup}>
                           <label>Due Date</label>
