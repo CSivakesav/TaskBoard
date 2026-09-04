@@ -1,0 +1,146 @@
+.page { min-height: 100vh; background: var(--color-bg); }
+
+.navbar {
+  height: var(--navbar-height);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  display: flex; align-items: center;
+  padding: 0 var(--space-6);
+  position: sticky; top: 0; z-index: 100;
+}
+
+.navLeft { display: flex; align-items: center; gap: var(--space-3); }
+
+.backBtn {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+}
+.backBtn:hover { background: var(--color-bg-secondary); color: var(--color-text); }
+
+.logo {
+  display: flex; align-items: center; gap: var(--space-2);
+  font-size: var(--font-size-lg); font-weight: 700; color: var(--color-primary);
+}
+
+.main { max-width: 1200px; margin: 0 auto; padding: var(--space-8) var(--space-6); }
+
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: var(--space-8);
+}
+.header h1 { font-size: var(--font-size-2xl); font-weight: 700; display: flex; align-items: center; gap: var(--space-3); }
+.header p { color: var(--color-text-secondary); font-size: var(--font-size-sm); margin-top: var(--space-1); }
+
+.createBtn {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--gradient-primary); color: white;
+  border-radius: var(--radius-md); font-weight: 600; font-size: var(--font-size-sm);
+  transition: all var(--transition-base);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+}
+.createBtn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35); }
+
+.boardsGrid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-5);
+}
+
+.boardCard {
+  position: relative; background: var(--color-surface);
+  border: 1px solid var(--color-border-light); border-radius: var(--radius-xl);
+  overflow: hidden; cursor: pointer; transition: all var(--transition-base);
+  animation: fadeInUp 0.4s ease-out backwards;
+}
+.boardCard:hover { transform: translateY(-4px); box-shadow: var(--shadow-card-hover); border-color: var(--color-primary-light); }
+
+.boardGradient {
+  height: 4px; background: var(--gradient-primary);
+}
+
+.boardContent { padding: var(--space-5); }
+.boardContent h3 { font-size: var(--font-size-md); font-weight: 600; color: var(--color-text); margin-bottom: var(--space-2); }
+.boardContent p { font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4); line-height: 1.5; }
+
+.boardMeta {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: var(--font-size-xs); color: var(--color-text-tertiary);
+}
+
+.boardActions { display: flex; gap: var(--space-1); }
+
+.deleteBtn {
+  width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-sm); color: var(--color-text-tertiary);
+  transition: all var(--transition-fast);
+}
+.deleteBtn:hover { background: rgba(239, 68, 68, 0.1); color: var(--color-danger); }
+
+.emptyState {
+  grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: var(--space-16); gap: var(--space-4);
+  color: var(--color-text-tertiary);
+}
+.emptyState h2 { color: var(--color-text-secondary); font-size: var(--font-size-lg); }
+.emptyState p { font-size: var(--font-size-sm); }
+
+/* Modal */
+.modalOverlay {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center;
+  z-index: 1000; animation: fadeIn var(--transition-fast) ease-out;
+}
+
+.modal {
+  width: 90%; max-width: 480px; background: var(--color-surface);
+  border-radius: var(--radius-xl); box-shadow: var(--shadow-xl);
+  animation: fadeInScale var(--transition-slow) ease-out;
+}
+
+.modalHeader {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--space-5) var(--space-6); border-bottom: 1px solid var(--color-border-light);
+}
+.modalHeader h2 { font-size: var(--font-size-lg); font-weight: 600; }
+
+.modalClose {
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-md); color: var(--color-text-tertiary);
+  transition: all var(--transition-fast);
+}
+.modalClose:hover { background: var(--color-bg-secondary); color: var(--color-text); }
+
+.modalForm { padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-4); }
+
+.formGroup { display: flex; flex-direction: column; gap: var(--space-2); }
+.formGroup label { font-size: var(--font-size-sm); font-weight: 500; color: var(--color-text-secondary); }
+.formGroup input, .formGroup textarea {
+  padding: var(--space-3); background: var(--color-bg);
+  border: 1px solid var(--color-border); border-radius: var(--radius-md);
+  color: var(--color-text); font-size: var(--font-size-base);
+  transition: all var(--transition-fast); outline: none; resize: vertical;
+}
+.formGroup input:focus, .formGroup textarea:focus {
+  border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-ghost);
+}
+
+.modalActions { display: flex; justify-content: flex-end; gap: var(--space-3); padding-top: var(--space-2); }
+
+.cancelBtn {
+  padding: var(--space-2) var(--space-4); border-radius: var(--radius-md);
+  font-size: var(--font-size-sm); font-weight: 500; color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+}
+.cancelBtn:hover { background: var(--color-bg-secondary); }
+
+.submitBtn {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-2) var(--space-4); background: var(--gradient-primary);
+  color: white; border-radius: var(--radius-md); font-size: var(--font-size-sm);
+  font-weight: 600; transition: all var(--transition-base);
+}
+.submitBtn:hover:not(:disabled) { transform: translateY(-1px); }
+.submitBtn:disabled { opacity: 0.7; cursor: not-allowed; }
+.spinIcon { animation: spin 1s linear infinite; }
